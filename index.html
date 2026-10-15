@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SK Bagtas | Inventory & Scheduling</title>
+<style>
+/* 1. Theme variables and base styles */
+:root{
+  --navy:#123b63;--blue:#1769aa;--blue2:#eaf4ff;--green:#15966a;--green2:#e8f8f0;
+  --ink:#183247;--muted:#6c8191;--line:#e1eaf0;--bg:#f4f8fb;--white:#fff;
+  --amber:#b9770e;--amber-bg:#fff5df;--red:#c24141;--red-bg:#fff0f0;
+  --shadow:0 8px 26px rgba(18,59,99,.07);--radius:16px
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Segoe UI",Arial,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+/* 2. Main application layout and navigation */
+.app{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100vh}
+.sidebar{background:linear-gradient(180deg,#123b63,#0d4b62);color:#fff;padding:24px 16px;display:flex;flex-direction:column;gap:24px}
+.brand{display:flex;gap:12px;align-items:center;padding:0 8px}
+.brand-mark{height:46px;width:46px;border-radius:14px;background:#fff;color:var(--green);display:grid;place-items:center;font-size:24px;font-weight:900;box-shadow:0 4px 14px #061f3833}
+.brand h1{font-size:15px;margin:0;line-height:1.25}.brand p{font-size:11px;margin:4px 0 0;color:#c5dfec}
+.nav-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#a8c9d9;padding:0 12px;margin-bottom:5px}
+.nav{display:grid;gap:5px}
+.nav button{display:flex;align-items:center;gap:12px;border:0;color:#dcebf2;background:transparent;padding:12px;border-radius:11px;text-align:left;transition:.18s;min-height:44px}
+.nav button:hover,.nav button.active{background:#ffffff20;color:white}
+.nav button.active{box-shadow:inset 3px 0 #48d59b}
+.nav .ico{width:22px;text-align:center;font-size:18px}
+.side-bottom{margin-top:auto;border-top:1px solid #ffffff26;padding:18px 8px 0;font-size:12px;color:#c5dfec}
+.profile{display:flex;align-items:center;gap:10px;margin-top:14px}
+.avatar{width:35px;height:35px;display:grid;place-items:center;background:#d9f7e8;color:#126748;border-radius:50%;font-weight:800}
+.profile strong{display:block;color:#fff;font-size:12px}.profile span{font-size:11px}
+main{min-width:0}
+.topbar{height:78px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 34px;gap:20px}
+.breadcrumb{font-size:12px;color:var(--muted)}.breadcrumb strong{color:var(--ink)}
+.top-actions{display:flex;align-items:center;gap:14px}.today{font-size:12px;color:var(--muted)}.notif{position:relative;border:1px solid var(--line);background:#fff;width:38px;height:38px;border-radius:12px;font-size:17px}.notif:after{content:"";position:absolute;right:8px;top:7px;width:7px;height:7px;border-radius:50%;background:#20b779;border:2px solid white}
+.content{padding:30px 34px 45px;max-width:1500px;margin:auto}
+.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--green);font-weight:800}
+h2{font-size:27px;line-height:1.2;margin:5px 0 8px;color:#153b58}
+.subtitle{color:var(--muted);margin:0;font-size:14px}
+.actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:10px 14px;font-weight:700;font-size:13px;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.btn:hover{filter:brightness(.98);transform:translateY(-1px)}
+.btn.primary{background:var(--blue);color:white;border-color:var(--blue)}.btn.green{background:var(--green);color:white;border-color:var(--green)}.btn.soft{background:var(--blue2);color:var(--blue);border-color:#d5e9fb}
+.btn.small{padding:7px 10px;font-size:12px}.btn.danger{color:var(--red);background:var(--red-bg);border-color:#f5d1d1}
+/* 3. Dashboard cards, tables, and status labels */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:20px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.stat-top{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:12px;font-weight:700}
+.stat-icon{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:19px;background:var(--blue2)}
+.stat:nth-child(2) .stat-icon{background:var(--green2)}.stat:nth-child(3) .stat-icon{background:var(--amber-bg)}.stat:nth-child(4) .stat-icon{background:#f0eaff}
+.stat-num{font-size:29px;font-weight:800;letter-spacing:-.7px;margin:12px 0 2px;color:#143d5a}
+.stat-note{font-size:11px;color:var(--muted)}.positive{color:var(--green);font-weight:700}
+.grid2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,1fr);gap:18px;margin-bottom:18px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;min-width:0}
+.panel-head{padding:19px 21px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line)}
+.panel-head h3{margin:0;font-size:15px}.panel-head p{margin:3px 0 0;color:var(--muted);font-size:12px}
+.panel-body{padding:20px}
+.link-button{background:transparent;border:0;color:var(--blue);font-size:12px;font-weight:800}
+.table-wrap{overflow:auto}
+table{border-collapse:collapse;width:100%;white-space:nowrap}
+th{text-align:left;font-size:10px;letter-spacing:.7px;text-transform:uppercase;color:#7a8f9e;background:#f9fbfd;padding:12px 18px}
+td{padding:14px 18px;border-top:1px solid #edf2f5;font-size:12px}
+tbody tr:hover{background:#fbfdff}
+.item-cell{display:flex;align-items:center;gap:10px}.item-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:var(--blue2);font-size:17px}
+.item-cell strong{display:block;font-size:12px}.item-cell small{display:block;color:var(--muted);font-size:10px}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:30px;font-size:10px;font-weight:800}
+.pill.green{background:var(--green2);color:#12744e}.pill.blue{background:var(--blue2);color:#1c65a0}.pill.amber{background:var(--amber-bg);color:#9b650d}.pill.red{background:var(--red-bg);color:#b33333}.pill.gray{background:#edf2f5;color:#607785}
+.schedule-list{display:grid;gap:0}
+.event{display:grid;grid-template-columns:52px minmax(0,1fr);gap:12px;padding:14px 0;border-bottom:1px solid #edf2f5}
+.event:last-child{border-bottom:0}.date-box{background:var(--green2);border-radius:11px;text-align:center;padding:8px 3px;color:#14724e;height:56px}
+.date-box b{display:block;font-size:19px;line-height:1.1}.date-box span{font-size:9px;font-weight:800;letter-spacing:.6px}
+.event h4{margin:1px 0 4px;font-size:12px}.event p{margin:0 0 6px;color:var(--muted);font-size:11px}
+.event-foot{display:flex;gap:6px;flex-wrap:wrap}
+.bar-row{display:grid;grid-template-columns:100px 1fr 28px;gap:10px;align-items:center;margin:16px 0;font-size:12px}
+.bar{height:8px;background:#edf3f7;border-radius:20px;overflow:hidden}.bar span{height:100%;display:block;background:linear-gradient(90deg,var(--blue),#42b9a0);border-radius:20px}
+.notice{padding:13px 14px;border-radius:12px;background:#fff8e9;border:1px solid #f5e5bd;color:#79561b;font-size:12px;display:flex;gap:10px;align-items:flex-start;margin-top:16px}
+/* 4. Forms, views, feedback, and responsive layouts */
+.view{display:none}.view.active{display:block;animation:fade .18s ease}@keyframes fade{from{opacity:.5;transform:translateY(3px)}to{opacity:1;transform:none}}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}.search{position:relative;flex:1;min-width:200px}.search input{width:100%;padding:11px 14px 11px 38px;border:1px solid var(--line);border-radius:10px;background:#fff;outline:none}.search:before{content:"⌕";position:absolute;left:14px;top:6px;font-size:23px;color:#8ca0ae}
+select,input,textarea{border:1px solid #dbe5ec;border-radius:9px;padding:10px 11px;background:#fff;color:var(--ink);width:100%;outline:none}
+input:focus,select:focus,textarea:focus{border-color:#68a9d7;box-shadow:0 0 0 3px #e7f3fd}
+.filter{width:auto;min-width:140px}.form-panel{max-width:850px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}.field label{display:block;font-size:12px;font-weight:800;margin-bottom:7px}.field small{display:block;color:var(--muted);font-size:11px;margin-top:5px}.field.full{grid-column:1/-1}.required{color:var(--red)}.form-actions{display:flex;justify-content:flex-end;gap:10px;padding-top:20px;margin-top:20px;border-top:1px solid var(--line)}
+.steps{display:flex;align-items:center;gap:7px;margin:0 0 20px;font-size:11px;color:var(--muted);flex-wrap:wrap}.steps span{padding:6px 9px;background:#fff;border:1px solid var(--line);border-radius:7px}.steps span.current{background:var(--blue2);border-color:#cfe6fa;color:var(--blue);font-weight:800}.steps b{color:#9aabb7}
+.empty{text-align:center;padding:35px;color:var(--muted)}.empty div{font-size:34px;margin-bottom:7px}
+.success{max-width:650px;margin:20px auto;text-align:center;padding:38px 28px}.success-icon{margin:0 auto 18px;width:72px;height:72px;border-radius:50%;display:grid;place-items:center;background:var(--green2);color:var(--green);font-size:35px}.success h3{font-size:22px;margin:0 0 8px}.success p{color:var(--muted);font-size:13px;max-width:450px;margin:0 auto 20px}.receipt{background:#f8fbfd;border:1px solid var(--line);border-radius:12px;padding:15px;text-align:left;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}.receipt small{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.6px}.receipt strong{font-size:12px}
+.toast{position:fixed;right:24px;bottom:24px;background:#123b63;color:white;padding:14px 18px;border-radius:12px;box-shadow:0 10px 30px #102e4633;z-index:10;display:none;max-width:340px;font-size:13px}.toast.show{display:block;animation:fade .2s}
+.mobile-menu{display:none;min-width:44px;min-height:44px}
+@media(max-width:1050px){.app{grid-template-columns:210px minmax(0,1fr)}.content{padding:24px 20px}.topbar{padding:0 20px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2{grid-template-columns:1fr}}
+@media(max-width:720px){.app{display:block}.sidebar{display:none;position:fixed;z-index:20;inset:0 auto 0 0;width:min(280px,85vw);height:100dvh;overflow-y:auto;box-shadow:0 0 0 100vw #09223866}.sidebar.open{display:flex}.mobile-menu{display:inline-flex}.topbar{height:68px;padding:0 12px;gap:8px}.today{display:none}.content{padding:21px 14px 35px}.page-head{display:block}.page-head .actions{margin-top:16px}.stats{gap:10px}.stat{padding:15px}.stat-num{font-size:25px}.stat-top{align-items:flex-start}.stat-icon{width:32px;height:32px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.receipt{grid-template-columns:1fr}.panel-head{padding:16px}.panel-body{padding:16px}h2{font-size:24px}.toast{left:14px;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));max-width:none}}
+@media(max-width:390px){.stats{grid-template-columns:1fr 1fr}.stat-note{font-size:10px}.top-actions{gap:7px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><div class="brand-mark">SK</div><div><h1>SK BARANGAY BAGTAS</h1><p>Officials Management Portal</p></div></div>
+  <div><div class="nav-label">Workspace</div><nav class="nav" aria-label="Main navigation">
+    <button class="active" data-view="dashboard"><span class="ico">▦</span>Dashboard</button>
+    <button data-view="inventory"><span class="ico">▤</span>Inventory Monitoring</button>
+    <button data-view="schedule"><span class="ico">▦</span>Materials Scheduling</button>
+    <button data-view="request"><span class="ico">＋</span>New Request</button>
+    <button data-view="reports"><span class="ico">▥</span>Reports & Activity</button>
+  </nav></div>
+  <div><div class="nav-label">Management</div><nav class="nav">
+    <button data-view="help"><span class="ico">ⓘ</span>Help & Guidelines</button>
+  </nav></div>
+  <div class="side-bottom">Barangay Bagtas · Tanza, Cavite<div class="profile"><div class="avatar">SK</div><div><strong>SK Administrator</strong><span>Inventory & scheduling</span></div></div></div>
+</aside>
+<main>
+<header class="topbar">
+  <div style="display:flex;align-items:center;gap:10px;min-width:0"><button class="btn mobile-menu" id="menuBtn" aria-label="Open menu" aria-expanded="false">☰</button><div class="breadcrumb">SK Bagtas <span style="color:#a7b5bf"> / </span> <strong id="crumb">Dashboard</strong></div></div>
+  <div class="top-actions"><span class="today" id="todayText"></span><button class="notif" aria-label="Notifications" onclick="showToast('You are all caught up. No new notifications.')">♧</button></div>
+</header>
+<div class="content">
+<section class="view active" id="dashboard">
+  <div class="page-head"><div><div class="eyebrow">Barangay operations</div><h2>Good day, SK team! 👋</h2><p class="subtitle">Monitor supplies and manage shared materials in one place.</p></div><div class="actions"><button class="btn" onclick="navigate('addItem')">＋ Add inventory</button><button class="btn primary" onclick="navigate('request')">＋ Create request</button></div></div>
+  <div class="stats">
+    <article class="stat"><div class="stat-top">Inventory items <span class="stat-icon">▤</span></div><div class="stat-num" id="statItems">24</div><div class="stat-note"><span class="positive">Tracked</span> supplies and equipment</div></article>
+    <article class="stat"><div class="stat-top">Available quantity <span class="stat-icon">✓</span></div><div class="stat-num" id="statQty">486</div><div class="stat-note">Units currently in stock</div></article>
+    <article class="stat"><div class="stat-top">Upcoming schedules <span class="stat-icon">▦</span></div><div class="stat-num" id="statSchedules">6</div><div class="stat-note">Approved material reservations</div></article>
+    <article class="stat"><div class="stat-top">Needs attention <span class="stat-icon">⚑</span></div><div class="stat-num" id="statLow">3</div><div class="stat-note">Low-stock items to review</div></article>
+  </div>
+  <div class="grid2">
+    <section class="panel"><div class="panel-head"><div><h3>Inventory at a glance</h3><p>Current quantities and stock status</p></div><button class="link-button" onclick="navigate('inventory')">View inventory →</button></div><div class="table-wrap"><table><thead><tr><th>Item</th><th>Available</th><th>Status</th></tr></thead><tbody id="dashboardInventory"></tbody></table></div></section>
+    <section class="panel"><div class="panel-head"><div><h3>Upcoming material schedules</h3><p>Next approved reservations</p></div><button class="link-button" onclick="navigate('schedule')">View all →</button></div><div class="panel-body"><div class="schedule-list" id="dashboardEvents"></div></div></section>
+  </div>
+  <section class="panel"><div class="panel-head"><div><h3>Stock distribution</h3><p>Available quantities by category</p></div><span class="pill blue">Live demo data</span></div><div class="panel-body" id="stockBars"></div></section>
+</section>
+
+<section class="view" id="inventory">
+  <div class="page-head"><div><div class="eyebrow">Resource tracking</div><h2>Inventory Monitoring</h2><p class="subtitle">Review supplies, check stock levels, and record new items.</p></div><div class="actions"><button class="btn primary" onclick="navigate('addItem')">＋ Add inventory item</button></div></div>
+  <div class="toolbar"><div class="search"><input id="inventorySearch" type="search" placeholder="Search item or category..." aria-label="Search inventory"></div><select id="stockFilter" class="filter" aria-label="Filter by stock status"><option value="all">All stock statuses</option><option value="Available">Available</option><option value="Low stock">Low stock</option><option value="Out of stock">Out of stock</option></select></div>
+  <section class="panel"><div class="table-wrap"><table><thead><tr><th>Item / Category</th><th>Total</th><th>Reserved</th><th>Available</th><th>Stock status</th><th>Action</th></tr></thead><tbody id="inventoryRows"></tbody></table></div></section>
+  <p class="subtitle" style="font-size:11px;margin-top:12px">Tip: Quantities marked as reserved are not included in available stock.</p>
+</section>
+
+<section class="view" id="addItem">
+  <div class="page-head"><div><div class="eyebrow">Inventory management</div><h2>Add Inventory Item</h2><p class="subtitle">Enter the details carefully so stock records stay accurate.</p></div></div>
+  <div class="steps"><span>1. Inventory</span><b>→</b><span class="current">2. Item details</span><b>→</b><span>3. Save confirmation</span></div>
+  <section class="panel form-panel"><div class="panel-head"><div><h3>Item information</h3><p>Fields marked * are required.</p></div><span class="pill blue">New record</span></div><div class="panel-body"><form id="addItemForm"><div class="form-grid">
+    <div class="field"><label for="itemName">Item name <span class="required">*</span></label><input id="itemName" required placeholder="e.g., Folding chairs" maxlength="70"></div>
+    <div class="field"><label for="itemCategory">Category <span class="required">*</span></label><select id="itemCategory" required><option value="">Select category</option><option>Furniture</option><option>Sports equipment</option><option>Event supplies</option><option>Office supplies</option><option>Electronics</option><option>Other</option></select></div>
+    <div class="field"><label for="itemQty">Total quantity <span class="required">*</span></label><input id="itemQty" type="number" min="0" step="1" required placeholder="e.g., 50"><small>Use a whole number. Enter 0 if none are currently held.</small></div>
+    <div class="field"><label for="itemUnit">Unit of measure <span class="required">*</span></label><select id="itemUnit" required><option value="">Select unit</option><option>pieces</option><option>sets</option><option>boxes</option><option>reams</option><option>pairs</option><option>units</option></select></div>
+    <div class="field"><label for="itemThreshold">Low-stock alert level <span class="required">*</span></label><input id="itemThreshold" type="number" min="0" step="1" value="5" required><small>Show a warning when available quantity is at or below this number.</small></div>
+    <div class="field"><label for="itemLocation">Storage location</label><input id="itemLocation" placeholder="e.g., SK office stockroom" maxlength="80"></div>
+    <div class="field full"><label for="itemNotes">Notes (optional)</label><textarea id="itemNotes" rows="3" placeholder="Condition, brand, or other useful details" maxlength="300"></textarea></div>
+  </div><div class="form-actions"><button type="button" class="btn" onclick="navigate('inventory')">Cancel</button><button type="reset" class="btn">Clear form</button><button class="btn primary" type="submit">Save item →</button></div></form></div></section>
+</section>
+
+<section class="view" id="schedule">
+  <div class="page-head"><div><div class="eyebrow">Calendar & reservations</div><h2>Materials Scheduling</h2><p class="subtitle">See what is reserved, when it is needed, and who is responsible.</p></div><div class="actions"><button class="btn primary" onclick="navigate('request')">＋ Schedule materials</button></div></div>
+  <div class="toolbar"><div class="search"><input id="scheduleSearch" type="search" placeholder="Search activity, requester, or material..." aria-label="Search schedules"></div><select id="scheduleFilter" class="filter" aria-label="Filter schedules"><option value="all">All statuses</option><option>Approved</option><option>Pending</option><option>Rejected</option></select></div>
+  <section class="panel"><div class="table-wrap"><table><thead><tr><th>Date & time</th><th>Activity / Requester</th><th>Materials</th><th>Status</th><th>Action</th></tr></thead><tbody id="scheduleRows"></tbody></table></div></section>
+</section>
+
+<section class="view" id="request">
+  <div class="page-head"><div><div class="eyebrow">New reservation</div><h2>Schedule Materials</h2><p class="subtitle">Reserve SK supplies for a planned youth activity or barangay event.</p></div></div>
+  <div class="steps"><span class="current">1. Select materials</span><b>→</b><span>2. Activity details</span><b>→</b><span>3. Confirmation</span></div>
+  <section class="panel form-panel"><div class="panel-head"><div><h3>Reservation request</h3><p>Choose an available item and provide the activity details.</p></div><span class="pill green">Step 1 of 2</span></div><div class="panel-body">
+  <form id="requestForm"><div class="form-grid">
+    <div class="field full"><label for="reqActivity">Activity / event name <span class="required">*</span></label><input id="reqActivity" required maxlength="100" placeholder="e.g., Youth Sports Fest 2026"></div>
+    <div class="field"><label for="reqName">Requested by <span class="required">*</span></label><input id="reqName" required maxlength="80" placeholder="SK officer / committee"></div>
+    <div class="field"><label for="reqContact">Contact number or email</label><input id="reqContact" maxlength="100" placeholder="For schedule coordination"></div>
+    <div class="field"><label for="reqDate">Date needed <span class="required">*</span></label><input id="reqDate" type="date" required></div>
+    <div class="field"><label for="reqStart">Start time <span class="required">*</span></label><input id="reqStart" type="time" required value="09:00"></div>
+    <div class="field"><label for="reqEnd">End time <span class="required">*</span></label><input id="reqEnd" type="time" required value="12:00"></div>
+    <div class="field"><label for="reqLocation">Activity location <span class="required">*</span></label><input id="reqLocation" required maxlength="100" placeholder="e.g., Barangay covered court"></div>
+    <div class="field"><label for="reqItem">Material to reserve <span class="required">*</span></label><select id="reqItem" required><option value="">Choose an item</option></select><small id="availableHint">Select an item to check available stock.</small></div>
+    <div class="field"><label for="reqQty">Quantity needed <span class="required">*</span></label><input id="reqQty" type="number" min="1" step="1" required placeholder="e.g., 20"><small id="qtyHint">Quantity must not exceed available stock.</small></div>
+    <div class="field full"><label for="reqNotes">Purpose / additional notes</label><textarea id="reqNotes" rows="3" maxlength="400" placeholder="Briefly explain how the materials will be used."></textarea></div>
+  </div><div class="notice"><span>ⓘ</span><div><strong>Before submitting:</strong> Check the date, time, and requested quantity. Requests are recorded as Pending until an authorized SK official approves them.</div></div>
+  <div class="form-actions"><button type="button" class="btn" onclick="navigate('schedule')">Cancel</button><button type="reset" class="btn">Clear form</button><button type="submit" class="btn primary">Review & submit request →</button></div></form></div></section>
+</section>
+
+<section class="view" id="confirmation">
+  <div class="page-head"><div><div class="eyebrow">Request status</div><h2>Submission Result</h2><p class="subtitle">Review the details recorded by the system.</p></div></div>
+  <section class="panel success"><div class="success-icon">✓</div><h3 id="successTitle">Request submitted successfully!</h3><p id="successMessage">Your materials request has been recorded and is awaiting review by an authorized SK official.</p><span class="pill amber">Pending approval</span><div class="receipt" id="receipt"></div><div class="actions" style="justify-content:center"><button class="btn" onclick="navigate('dashboard')">Back to dashboard</button><button class="btn primary" onclick="newRequest()">Create another request</button></div></section>
+</section>
+
+<section class="view" id="reports">
+  <div class="page-head"><div><div class="eyebrow">Monitoring & accountability</div><h2>Reports & Activity</h2><p class="subtitle">A quick view of inventory health and recent system activity.</p></div><div class="actions"><button class="btn" onclick="window.print()">⤓ Print report</button></div></div>
+  <div class="stats">
+    <article class="stat"><div class="stat-top">Tracked items <span class="stat-icon">▤</span></div><div class="stat-num" id="reportItems">24</div><div class="stat-note">Distinct inventory records</div></article>
+    <article class="stat"><div class="stat-top">Pending requests <span class="stat-icon">◷</span></div><div class="stat-num" id="reportPending">2</div><div class="stat-note">Awaiting official review</div></article>
+    <article class="stat"><div class="stat-top">Low-stock items <span class="stat-icon">⚑</span></div><div class="stat-num" id="reportLow">3</div><div class="stat-note">At or below alert threshold</div></article>
+    <article class="stat"><div class="stat-top">Scheduled activities <span class="stat-icon">▦</span></div><div class="stat-num" id="reportSchedules">6</div><div class="stat-note">Current schedule records</div></article>
+  </div>
+  <div class="grid2"><section class="panel"><div class="panel-head"><div><h3>Inventory summary</h3><p>Stock status by item</p></div></div><div class="table-wrap"><table><thead><tr><th>Item</th><th>Available</th><th>Status</th></tr></thead><tbody id="reportInventory"></tbody></table></div></section><section class="panel"><div class="panel-head"><div><h3>Recent activity</h3><p>Latest actions in this demo session</p></div></div><div class="panel-body" id="activityLog"></div></section></div>
+</section>
+
+<section class="view" id="help">
+  <div class="page-head"><div><div class="eyebrow">Support center</div><h2>Help & Guidelines</h2><p class="subtitle">Quick instructions for reliable inventory records and reservations.</p></div></div>
+  <div class="grid2"><section class="panel"><div class="panel-head"><h3>How to reserve materials</h3></div><div class="panel-body"><div class="event"><div class="date-box"><b>1</b><span>STEP</span></div><div><h4>Open Schedule Materials</h4><p>Use the left navigation or the Create request button on the dashboard.</p></div></div><div class="event"><div class="date-box"><b>2</b><span>STEP</span></div><div><h4>Enter event details</h4><p>Provide the activity name, requester, date, start and end time, and location.</p></div></div><div class="event"><div class="date-box"><b>3</b><span>STEP</span></div><div><h4>Choose available materials</h4><p>Check the availability hint and enter a quantity no greater than the available stock.</p></div></div><div class="event"><div class="date-box"><b>4</b><span>STEP</span></div><div><h4>Submit and review confirmation</h4><p>Keep the request details and follow up with an authorized SK official for approval.</p></div></div></div></section>
+  <section class="panel"><div class="panel-head"><h3>Inventory rules</h3></div><div class="panel-body"><div class="notice" style="margin-top:0"><span>✓</span><div><strong>Keep quantities accurate</strong><br>Update records when supplies are received, issued, damaged, or returned.</div></div><div class="notice"><span>⚑</span><div><strong>Watch low-stock warnings</strong><br>Items at or below their alert level need review before a new reservation is accepted.</div></div><div class="notice"><span>◷</span><div><strong>Check schedule conflicts</strong><br>Confirm the time and availability with the SK office before an activity.</div></div><div class="notice"><span>🔒</span><div><strong>Offline prototype note</strong><br>Changes are saved in this browser on this device. No internet, account, or backend is required. Clearing browser data may erase saved changes.</div></div></div></section></div>
+</section>
+<footer style="padding:24px 0 0;color:#8497a4;font-size:11px;text-align:center">SK Barangay Bagtas · Inventory & Scheduling · Offline prototype — changes save on this device</footer>
+</div>
+</main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+/* DATA: inventory records, schedule records, and activity history */
+const inventory = [
+ {id:1,name:"Folding chairs",category:"Furniture",icon:"🪑",total:120,reserved:30,unit:"pieces",threshold:15,location:"SK stockroom"},
+ {id:2,name:"Volleyballs",category:"Sports equipment",icon:"🏐",total:18,reserved:4,unit:"pieces",threshold:5,location:"Equipment cabinet"},
+ {id:3,name:"Basketballs",category:"Sports equipment",icon:"🏀",total:12,reserved:8,unit:"pieces",threshold:5,location:"Equipment cabinet"},
+ {id:4,name:"Tents",category:"Event supplies",icon:"⛺",total:8,reserved:2,unit:"units",threshold:2,location:"SK stockroom"},
+ {id:5,name:"Sound system",category:"Electronics",icon:"🔊",total:3,reserved:1,unit:"sets",threshold:1,location:"SK office"},
+ {id:6,name:"Bond paper",category:"Office supplies",icon:"📄",total:40,reserved:35,unit:"reams",threshold:8,location:"Office cabinet"},
+ {id:7,name:"Extension cords",category:"Electronics",icon:"🔌",total:10,reserved:2,unit:"pieces",threshold:3,location:"SK office"},
+ {id:8,name:"First-aid kits",category:"Event supplies",icon:"🧰",total:6,reserved:0,unit:"sets",threshold:2,location:"SK stockroom"}
+];
+let schedules = [
+ {id:"SK-2601",date:dateOffset(2),start:"08:00",end:"12:00",activity:"Youth Sports Clinic",requester:"Sports Committee",location:"Barangay covered court",itemId:2,qty:4,status:"Approved"},
+ {id:"SK-2602",date:dateOffset(3),start:"13:00",end:"16:00",activity:"Youth Leadership Workshop",requester:"SK Secretary",location:"Barangay hall",itemId:1,qty:25,status:"Approved"},
+ {id:"SK-2603",date:dateOffset(5),start:"09:00",end:"15:00",activity:"Community Clean-up",requester:"Environment Committee",location:"Barangay Bagtas",itemId:5,qty:1,status:"Approved"},
+ {id:"SK-2604",date:dateOffset(7),start:"08:00",end:"17:00",activity:"Inter-Purok Games",requester:"Sports Committee",location:"Covered court",itemId:3,qty:4,status:"Pending"},
+ {id:"SK-2605",date:dateOffset(9),start:"10:00",end:"12:00",activity:"Youth Consultation",requester:"SK Chairperson",location:"SK office",itemId:6,qty:5,status:"Pending"},
+ {id:"SK-2606",date:dateOffset(12),start:"08:00",end:"11:00",activity:"Barangay Youth Assembly",requester:"SK Council",location:"Barangay hall",itemId:4,qty:2,status:"Approved"}
+];
+let activities = ["Inventory checked by SK Administrator","Upcoming reservations reviewed","Stock levels synchronized for this demo"];
+const STORAGE_KEY = "skBagtasInventoryPrototype_v1";
+/* Restore data on the same device/browser when this standalone file is reopened. */
+try {
+ const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");
+ if(saved&&Array.isArray(saved.inventory)&&Array.isArray(saved.schedules)){
+   inventory.splice(0,inventory.length,...saved.inventory);
+   schedules=saved.schedules;
+   if(Array.isArray(saved.activities))activities=saved.activities;
+ }
+} catch(error) {
+ console.warn("Saved prototype data could not be loaded; using sample data.",error);
+}
+function saveAppData(){
+ try{
+   localStorage.setItem(STORAGE_KEY,JSON.stringify({inventory,schedules,activities}));
+   return true;
+ }catch(error){
+   console.warn("Prototype data could not be saved.",error);
+   showToast("Changes work for now, but this browser could not save them on the device.");
+   return false;
+ }
+}
+/* HELPERS: dates, item lookup, stock status, and notifications */
+function dateOffset(days){const d=new Date();d.setDate(d.getDate()+days);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function itemById(id){return inventory.find(i=>i.id===Number(id))}
+function available(item){return item.total-item.reserved}
+function status(item){if(available(item)<=0)return "Out of stock";if(available(item)<=item.threshold)return "Low stock";return "Available"}
+function statusPill(s){let c=s==="Available"||s==="Approved"?"green":s==="Pending"||s==="Low stock"?"amber":s==="Out of stock"||s==="Rejected"?"red":"gray";return `<span class="pill ${c}">${s}</span>`}
+function niceDate(s){if(!s)return "—";return new Date(s+"T12:00:00").toLocaleDateString("en-PH",{month:"short",day:"numeric",year:"numeric"})}
+function dayParts(s){let d=new Date(s+"T12:00:00");return {day:d.toLocaleDateString("en",{day:"2-digit"}),month:d.toLocaleDateString("en",{month:"short"}).toUpperCase()}}
+function formatTime(t){if(!t)return "";let [h,m]=t.split(":").map(Number);return `${h%12||12}:${String(m).padStart(2,"0")} ${h>=12?"PM":"AM"}`}
+function showToast(msg){let el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>el.classList.remove("show"),3200)}
+function navigate(view){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===view));document.querySelectorAll(".nav button[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));const names={dashboard:"Dashboard",inventory:"Inventory Monitoring",addItem:"Add Inventory Item",schedule:"Materials Scheduling",request:"Schedule Materials",confirmation:"Submission Result",reports:"Reports & Activity",help:"Help & Guidelines"};document.getElementById("crumb").textContent=names[view]||"Dashboard";document.getElementById("sidebar").classList.remove("open");document.getElementById("menuBtn").setAttribute("aria-expanded","false");window.scrollTo({top:0,behavior:"smooth"});if(view==="request")populateItemSelect();if(view==="dashboard"||view==="inventory"||view==="schedule"||view==="reports")renderAll()}
+document.querySelectorAll(".nav button[data-view]").forEach(b=>b.addEventListener("click",()=>navigate(b.dataset.view)));
+document.getElementById("menuBtn").addEventListener("click",()=>{let side=document.getElementById("sidebar"),open=side.classList.toggle("open");document.getElementById("menuBtn").setAttribute("aria-expanded",String(open))});
+document.addEventListener("click",e=>{let side=document.getElementById("sidebar"),menu=document.getElementById("menuBtn");if(side.classList.contains("open")&&!side.contains(e.target)&&!menu.contains(e.target)){side.classList.remove("open");menu.setAttribute("aria-expanded","false")}});
+document.getElementById("todayText").textContent=new Date().toLocaleDateString("en-PH",{weekday:"short",month:"short",day:"numeric",year:"numeric"});
+/* RENDERERS: update each screen from the shared data arrays */
+function renderInventoryRows(target,mode="full"){let body=document.getElementById(target);if(!body)return;let q=(document.getElementById("inventorySearch")?.value||"").toLowerCase(),f=document.getElementById("stockFilter")?.value||"all";let rows=inventory.filter(i=>(i.name+" "+i.category).toLowerCase().includes(q)&&(f==="all"||status(i)===f));if(mode==="mini")rows=inventory.slice(0,5);body.innerHTML=rows.length?rows.map(i=>`<tr><td><div class="item-cell"><div class="item-icon">${i.icon}</div><div><strong>${escapeHtml(i.name)}</strong><small>${escapeHtml(i.category)}</small></div></div></td>${mode==="full"?`<td>${i.total} ${i.unit}</td><td>${i.reserved}</td>`:""}<td><strong>${available(i)}</strong> ${mode==="full"?i.unit:""}</td><td>${statusPill(status(i))}</td>${mode==="full"?`<td><button class="btn small soft" onclick="quickRestock(${i.id})">Update stock</button></td>`:""}</tr>`).join(""):`<tr><td colspan="6"><div class="empty"><div>⌕</div>No inventory items match your search.</div></td></tr>`}
+function renderEvents(target,limit=99){let el=document.getElementById(target);if(!el)return;let arr=[...schedules].filter(s=>target!=="dashboardEvents"||s.status==="Approved").sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start)).slice(0,limit);el.innerHTML=arr.length?arr.map(s=>{let d=dayParts(s.date),i=itemById(s.itemId);return `<div class="event"><div class="date-box"><b>${d.day}</b><span>${d.month}</span></div><div><h4>${escapeHtml(s.activity)}</h4><p>${niceDate(s.date)} · ${formatTime(s.start)}–${formatTime(s.end)}</p><div class="event-foot">${statusPill(s.status)} <span class="pill gray">${i?escapeHtml(i.name):"Material"} × ${s.qty}</span></div></div></div>`}).join(""):`<div class="empty">No schedules found.</div>`}
+function renderScheduleRows(){let body=document.getElementById("scheduleRows");if(!body)return;let q=(document.getElementById("scheduleSearch")?.value||"").toLowerCase(),f=document.getElementById("scheduleFilter")?.value||"all";let rows=[...schedules].filter(s=>(s.activity+" "+s.requester+" "+(itemById(s.itemId)?.name||"")).toLowerCase().includes(q)&&(f==="all"||s.status===f)).sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));body.innerHTML=rows.length?rows.map(s=>{let i=itemById(s.itemId);return `<tr><td><strong>${niceDate(s.date)}</strong><br><span style="color:#718696">${formatTime(s.start)}–${formatTime(s.end)}</span></td><td><strong>${escapeHtml(s.activity)}</strong><br><span style="color:#718696">${escapeHtml(s.requester)}</span></td><td>${i?escapeHtml(i.name):"—"} × ${s.qty}</td><td>${statusPill(s.status)}</td><td>${s.status==="Pending"?`<button class="btn small green" onclick="approveSchedule('${s.id}')">Approve</button> <button class="btn small danger" onclick="rejectSchedule('${s.id}')">Reject</button>`:`<button class="btn small" onclick="showScheduleDetails('${s.id}')">Details</button>`}</td></tr>`}).join(""):`<tr><td colspan="5"><div class="empty"><div>▦</div>No schedules match your search.</div></td></tr>`}
+function renderBars(){let el=document.getElementById("stockBars");if(!el)return;let cats=[...new Set(inventory.map(i=>i.category))];el.innerHTML=cats.map(c=>{let qty=inventory.filter(i=>i.category===c).reduce((s,i)=>s+available(i),0),max=Math.max(1,...cats.map(x=>inventory.filter(i=>i.category===x).reduce((s,i)=>s+available(i),0)));return `<div class="bar-row"><span>${escapeHtml(c)}</span><div class="bar"><span style="width:${Math.max(3,qty/max*100)}%"></span></div><strong>${qty}</strong></div>`}).join("")}
+function renderAll(){renderInventoryRows("dashboardInventory","mini");renderInventoryRows("inventoryRows","full");renderInventoryRows("reportInventory","mini");renderEvents("dashboardEvents",3);renderScheduleRows();renderBars();let qty=inventory.reduce((s,i)=>s+available(i),0),low=inventory.filter(i=>status(i)!=="Available").length;document.getElementById("statItems").textContent=inventory.length;document.getElementById("statQty").textContent=qty;document.getElementById("statSchedules").textContent=schedules.filter(s=>s.status==="Approved").length;document.getElementById("statLow").textContent=low;document.getElementById("reportItems").textContent=inventory.length;document.getElementById("reportPending").textContent=schedules.filter(s=>s.status==="Pending").length;document.getElementById("reportLow").textContent=low;document.getElementById("reportSchedules").textContent=schedules.length;let log=document.getElementById("activityLog");if(log)log.innerHTML=activities.slice().reverse().map((a,n)=>`<div class="event"><div class="date-box"><b>✓</b><span>LOG</span></div><div><h4>${escapeHtml(a)}</h4><p>${n===0?"Just now":n===1?"Earlier today":"Session activity"}</p></div></div>`).join("")}
+function escapeHtml(str){return String(str??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+/* ACTIONS: inventory edits, form submission, approvals, and navigation */
+function quickRestock(id){let i=itemById(id);let val=prompt(`Update TOTAL quantity for ${i.name}. Current total: ${i.total}`,i.total);if(val===null)return;let n=Number(val);if(!Number.isInteger(n)||n<0||n<i.reserved){showToast("Enter a whole number equal to or greater than reserved quantity ("+i.reserved+").");return}i.total=n;activities.push(`Updated stock quantity for ${i.name} to ${n} ${i.unit}`);saveAppData();renderAll();showToast("Inventory quantity updated.")}
+document.getElementById("addItemForm").addEventListener("submit",e=>{
+ e.preventDefault();
+ let name=document.getElementById("itemName").value.trim(),cat=document.getElementById("itemCategory").value,total=Number(document.getElementById("itemQty").value),unit=document.getElementById("itemUnit").value,threshold=Number(document.getElementById("itemThreshold").value);
+ if(!name||!cat||!unit||!Number.isInteger(total)||total<0||!Number.isInteger(threshold)||threshold<0){showToast("Please check the required fields and quantities.");return}
+ if(inventory.some(i=>i.name.toLowerCase()===name.toLowerCase())){showToast("An item with this name already exists. Search inventory before adding a duplicate.");return}
+ inventory.push({id:Math.max(0,...inventory.map(i=>i.id))+1,name,category:cat,icon:cat==="Furniture"?"🪑":cat==="Sports equipment"?"🏀":cat==="Electronics"?"🔌":cat==="Office supplies"?"📄":"📦",total,reserved:0,unit,threshold,location:document.getElementById("itemLocation").value||"Not specified"});
+ activities.push(`Added new inventory item: ${name}`);
+ saveAppData();
+ e.target.reset();renderAll();
+ document.getElementById("successTitle").textContent="Inventory item saved!";
+ document.getElementById("successMessage").textContent="The new item has been added to this prototype's inventory list.";
+ document.getElementById("receipt").innerHTML=`<div><small>Item name</small><strong>${escapeHtml(name)}</strong></div><div><small>Category</small><strong>${escapeHtml(cat)}</strong></div><div><small>Total quantity</small><strong>${total} ${escapeHtml(unit)}</strong></div><div><small>Stock status</small><strong>${statusPill(status(inventory[inventory.length-1]))}</strong></div>`;
+ document.querySelector("#confirmation .pill").textContent="Saved";document.querySelector("#confirmation .pill").className="pill green";
+ navigate("confirmation")
+});
+function populateItemSelect(){let sel=document.getElementById("reqItem"),old=sel.value;sel.innerHTML='<option value="">Choose an item</option>'+inventory.map(i=>`<option value="${i.id}">${escapeHtml(i.name)} — ${available(i)} ${escapeHtml(i.unit)} available</option>`).join("");if(inventory.some(i=>String(i.id)===old))sel.value=old;updateAvailabilityHint()}
+function updateAvailabilityHint(){let id=Number(document.getElementById("reqItem").value),i=itemById(id),hint=document.getElementById("availableHint"),qty=document.getElementById("reqQty");if(!i){hint.textContent="Select an item to check available stock.";qty.removeAttribute("max");return}hint.textContent=`${available(i)} ${i.unit} available · ${i.reserved} currently reserved.`;qty.max=available(i);document.getElementById("qtyHint").textContent=`Enter 1–${available(i)} ${i.unit}.`;if(Number(qty.value)>available(i))qty.value=""}
+document.getElementById("reqItem").addEventListener("change",updateAvailabilityHint);
+document.getElementById("requestForm").addEventListener("submit",e=>{
+ e.preventDefault();
+ let activity=document.getElementById("reqActivity").value.trim(),requester=document.getElementById("reqName").value.trim(),date=document.getElementById("reqDate").value,start=document.getElementById("reqStart").value,end=document.getElementById("reqEnd").value,location=document.getElementById("reqLocation").value.trim(),id=Number(document.getElementById("reqItem").value),qty=Number(document.getElementById("reqQty").value),i=itemById(id);
+ if(!i){showToast("Please choose a material to reserve.");return}
+ if(date<dateOffset(0)){showToast("Please choose today or a future date.");return}
+ if(end<=start){showToast("End time must be later than the start time.");return}
+ if(!Number.isInteger(qty)||qty<1||qty>available(i)){showToast(`Quantity must be between 1 and ${available(i)} ${i.unit}.`);return}
+ let conflict=schedules.some(s=>s.date===date&&s.status!=="Rejected"&&start<s.end&&end>s.start);
+ if(conflict&&!confirm("There is another reservation on this date during the selected time. Submit the request as Pending for the SK official to review?"))return;
+ let sid="SK-"+String(Date.now()).slice(-6);
+ schedules.push({id:sid,date,start,end,activity,requester,location,itemId:id,qty,status:"Pending",contact:document.getElementById("reqContact").value,notes:document.getElementById("reqNotes").value});
+ i.reserved+=qty;activities.push(`Submitted materials request ${sid} for ${activity}`);saveAppData();
+ document.getElementById("successTitle").textContent="Request submitted successfully!";
+ document.getElementById("successMessage").textContent="Your request has been recorded as Pending. An authorized SK official must review and approve it. The requested quantity is marked as reserved in this demo.";
+ document.querySelector("#confirmation .pill").textContent="Pending approval";document.querySelector("#confirmation .pill").className="pill amber";
+ document.getElementById("receipt").innerHTML=`<div><small>Request reference</small><strong>${sid}</strong></div><div><small>Status</small><strong>${statusPill("Pending")}</strong></div><div><small>Activity</small><strong>${escapeHtml(activity)}</strong></div><div><small>Requested by</small><strong>${escapeHtml(requester)}</strong></div><div><small>Date & time</small><strong>${niceDate(date)} · ${formatTime(start)}–${formatTime(end)}</strong></div><div><small>Material</small><strong>${escapeHtml(i.name)} × ${qty} ${escapeHtml(i.unit)}</strong></div><div><small>Location</small><strong>${escapeHtml(location)}</strong></div><div><small>Contact</small><strong>${escapeHtml(document.getElementById("reqContact").value||"Not provided")}</strong></div>`;
+ e.target.reset();document.getElementById("reqStart").value="09:00";document.getElementById("reqEnd").value="12:00";populateItemSelect();renderAll();navigate("confirmation")
+});
+function newRequest(){document.getElementById("requestForm").reset();document.getElementById("reqStart").value="09:00";document.getElementById("reqEnd").value="12:00";navigate("request")}
+function approveSchedule(id){let s=schedules.find(x=>x.id===id);if(!s)return;if(!confirm(`Approve "${s.activity}"? Confirm that the materials and schedule are available.`))return;s.status="Approved";activities.push(`Approved reservation ${s.id}: ${s.activity}`);saveAppData();renderAll();showToast("Reservation approved. Schedule status updated.");}
+function rejectSchedule(id){let s=schedules.find(x=>x.id===id);if(!s||s.status!=="Pending")return;if(!confirm(`Reject "${s.activity}"? Its reserved quantity will be returned to available stock.`))return;let item=itemById(s.itemId);if(item)item.reserved=Math.max(0,item.reserved-s.qty);s.status="Rejected";activities.push(`Rejected reservation ${s.id}: ${s.activity}; reserved stock returned`);saveAppData();renderAll();showToast("Request rejected; reserved stock returned to available inventory.");}
+function showScheduleDetails(id){let s=schedules.find(x=>x.id===id),i=itemById(s.itemId);alert(`Reference: ${s.id}\nActivity: ${s.activity}\nRequester: ${s.requester}\nDate: ${niceDate(s.date)}\nTime: ${formatTime(s.start)}–${formatTime(s.end)}\nLocation: ${s.location}\nMaterial: ${i?.name||"—"} × ${s.qty}\nStatus: ${s.status}`)}
+document.getElementById("inventorySearch").addEventListener("input",()=>renderInventoryRows("inventoryRows","full"));document.getElementById("stockFilter").addEventListener("change",()=>renderInventoryRows("inventoryRows","full"));document.getElementById("scheduleSearch").addEventListener("input",renderScheduleRows);document.getElementById("scheduleFilter").addEventListener("change",renderScheduleRows);
+document.getElementById("reqDate").min=dateOffset(0);
+renderAll();
+</script>
+</body>
+</html>
